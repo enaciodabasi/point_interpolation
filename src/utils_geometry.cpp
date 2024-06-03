@@ -183,3 +183,4 @@ RPY Quaternion::toRPY() const
   rpy.m_yaw = std::atan2(siny_cosp, cosy_cosp);
 
   return rpy;
+}

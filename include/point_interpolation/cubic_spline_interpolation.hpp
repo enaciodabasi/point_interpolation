@@ -37,7 +37,7 @@ struct CubicSplineCoefficients
   double c;
   double d;
 
-  CubicSplineCoefficients();
+  CubicSplineCoefficients(){};
 
   ~CubicSplineCoefficients() = default;
 };
@@ -77,6 +77,8 @@ using CubicFunction = std::function<double(
 
 std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::vector<Point> &points, CubicSplineType type = CubicSplineType::Natural);
 
+std::size_t getIndexOfIntervalsFirstPoint(const std::vector<Point>& points, const double x_coordinate);
 
+bool generateInterpolatedPoints(std::vector<Point>& points, double step_size);
 
 #endif // CUBIC_SPLINE_INTERPOLATION_HPP_
