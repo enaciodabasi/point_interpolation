@@ -1,0 +1,9 @@
+set(point_interpolation 1.0.0)
+
+@PACKAGE_INIT@
+
+set_and_check(point_interpolation_INCLUDE_DIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+set_and_check(point_interpolation_LIB_INSTALL_DIR "@PACKAGE_LIB_INSTALL_DIR@")
+set_and_check(point_interpolation_LIBRARIES "@PACKAGE_LIBS@")
+
+check_required_components(point_interpolation)
