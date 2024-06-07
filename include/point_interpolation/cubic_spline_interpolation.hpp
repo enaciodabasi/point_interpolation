@@ -12,7 +12,7 @@
 #ifndef CUBIC_SPLINE_INTERPOLATION_HPP_
 #define CUBIC_SPLINE_INTERPOLATION_HPP_
 
-#include <point_interpolation/utils/geometry.hpp>
+#include <point_interpolation/utils/utils_geometry.hpp>
 
 #include <eigen3/Eigen/Eigen>
 
@@ -80,5 +80,7 @@ std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::ve
 std::size_t getIndexOfIntervalsFirstPoint(const std::vector<Point>& points, const double x_coordinate);
 
 bool generateInterpolatedPoints(std::vector<Point>& points, double step_size);
+
+bool generateClosedCurve(std::vector<Point>& points, double step_size);
 
 #endif // CUBIC_SPLINE_INTERPOLATION_HPP_

@@ -9,31 +9,28 @@
  * 
  */
 
-#include <point_interpolation/utils/geometry.hpp>
 #include "point_interpolation/cubic_spline_interpolation.hpp"
 
 #include <iostream>
-#
+#include <matplot/matplot.h>
 
 int main(int argc, char** argv)
 {
-  
+  std::cout << "Generating Spline:\n";
   std::vector<double> xCoords = {
+    -2.0,
     0.0,
-    1.0,
-    2.5,
-    3.7,
-    4.2,
-    5.6
+    2.0,
+    0.0,
+    -2.0
   };
 
   std::vector<double> yCoords{
-    0.5,
-    0.7, 
-    0.9,
-    1.1,
-    1.3,
-    1.5
+    0.0,
+    2.0,
+    0.0,
+    -2.0,
+    0.0
   };
 
   std::vector<Point> points;
@@ -42,7 +39,6 @@ int main(int argc, char** argv)
   int i = 0;
   for(auto xCoord : xCoords)
   {
-    /* std::cout << xCoord << std::endl; */
     Point p;
     p.m_x = xCoord;
     p.m_y = yCoords.at(i);
@@ -50,13 +46,25 @@ int main(int argc, char** argv)
     i++;
   }
 
-  bool interpolationResult = generateInterpolatedPoints(points, 0.1);
+  bool interpolationResult = generateClosedCurve(points, 0.1);
 
   if(interpolationResult)
-    for(auto p : points)
+  {
+    std::vector<double> X;
+    std::vector<double> Y;
+    for(const auto& p : points)
     {
+      
+      X.push_back(p.m_x);
+      Y.push_back(p.m_y);
       std::cout << "x: " << p.m_x << " | y: " << p.m_y << std::endl;
     }
+    matplot::plot(X, Y);
+    matplot::hold(matplot::on);
+    matplot::plot(xCoords, yCoords, "-o")->marker_size(10.0);
+    /* matplot::scatter(xCoords, yCoords)->marker_size(10.0); */
+    matplot::show();
+  }
   else
     std::cout << "Error during interpolation" << std::endl;
   return 0;

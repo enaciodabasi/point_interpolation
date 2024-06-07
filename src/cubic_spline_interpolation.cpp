@@ -65,14 +65,12 @@ std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::ve
   for(std::size_t i = 1; i < numDataPoints; i++)
   {
     h.push_back(points.at(i).m_x - points.at(i-1).m_x);
-    std::cout << h.at(i-1) << std::endl;    
     //b.push_back((1.0 / h.at(i-1)) * ((points.at(i).m_y) - points.at(i-1).m_y));
   }
 
   for(std::size_t i = 0; i < numDataPoints-1; i++)
   {
     b.push_back((points.at(i+1).m_y - points.at(i).m_y) / h.at(i));
-    std::cout << b.at(i) << std::endl;
   }
 
   for (std::size_t i = 1; i < numDataPoints - 1; i++)
@@ -83,25 +81,22 @@ std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::ve
   
   resultVec(0) = 0.0;
   resultVec(numDataPoints - 1) = 0.0;
-  std::cout << A << std::endl;
   for (std::size_t i = 1; i < (numDataPoints-1); i++)
   {
-    std::cout << i << std::endl;
 
     A(i, i - 1) = h.at(i  - 1);
     A(i, i) = 2.0 * (h.at(i - 1) + h.at(i));
     A(i, i + 1) = h.at(i);
     if(i+1!=numDataPoints)
-    {
-      
+    { 
+
     }    
   }
   A(0, 0) = 1.0;
-  /* A(numDataPoints - 1, 1) = 1.0; */
+  A(numDataPoints - 1, numDataPoints- 1) = 1.0;
   std::cout << A << std::endl;
   
   eigen::Vector<double, eigen::Dynamic> coeffVec = A.lu().solve(resultVec);
-  std::cout << coeffVec << std::endl;
   switch (type)
   {
   case CubicSplineType::Natural:
@@ -109,6 +104,10 @@ std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::ve
     coeffVec(0) = 0.0;
     coeffVec(numDataPoints - 1) = 0.0;
     break;
+  }
+  case CubicSplineType::Clamped:
+  {
+    
   }
 
   default:
@@ -120,28 +119,27 @@ std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::ve
     Calculate polynomial coefficients for intervals 0 to numDataPoints - 1:
   */
   std::vector<CubicFunction> intervalFunctionVec;
-  /* for(auto coeff : coeffVec)
-  {
-    std::cout << "coeff: " << coeff << std::endl;
-  } */
   using namespace std::placeholders;
   for(std::size_t i = 0; i < numDataPoints; i++)
   {
     if(i+1==numDataPoints)
       break;
-    /* std::cout << i << std::endl; */
     CubicSplineCoefficients coeffs;
     coeffs.a = (coeffVec(i+1) / (6.0 * h.at(i)));
     coeffs.b = (coeffVec(i) / (6.0 * h.at(i)));
     coeffs.c = ((points.at(i+1).m_y) / h.at(i)) - ((coeffVec(i+1) * h.at(i)) / 6.0);
     coeffs.d = (points.at(i).m_y / h.at(i)) - ((coeffVec(i)*h.at(i)) / 6.0);
     CubicFunction func = std::bind(calculateCubicFunction, coeffs, _1, _2);
-    /* std::cout << coeffs.a << " " << coeffs.b << " " << coeffs.c << " " << coeffs.d << std::endl; */
     intervalFunctionVec.emplace_back(std::move(func));
   }
 
   return intervalFunctionVec;
 }
+
+/* std::optional<std::vector<CubicFunction>> calculateSplineFunctions(const std::vector<Point> &points, CubicSplineType type)
+{
+  
+} */
 
 std::size_t getIndexOfIntervalsFirstPoint(const std::vector<Point>& points, const double x_coordinate)
 {
@@ -178,7 +176,6 @@ bool generateInterpolatedPoints(std::vector<Point>& points, double step_size)
   
 
   std::vector<CubicFunction>& intervalFunctions = intervalFunctionsOpt.value();
-  std::cout << intervalFunctions.size() << std::endl;
   std::vector<Point> newPoints;
   const double epsilon = 1e-9;
   for(std::vector<Point>::const_iterator pointIter = points.begin(); (pointIter != (points.end() - 1)); pointIter++)
@@ -214,7 +211,6 @@ bool generateInterpolatedPoints(std::vector<Point>& points, double step_size)
           previousPoint = *std::next(pointIter);
           continue;
       }
-      std::cout << "Current interval: " << intervalPoints.first.m_x << " " << newPoint.m_x << " " << intervalPoints.second.m_x << " Interval: " << currentInterval << std::endl;
       auto interpolatedY = intervalFunctions.at(currentInterval)(intervalPoints, newPoint.m_x);
       newPoint.m_y = interpolatedY;
       previousPoint = newPoint;
@@ -228,4 +224,48 @@ bool generateInterpolatedPoints(std::vector<Point>& points, double step_size)
   }); */
 
   return true;
+}
+
+bool generateClosedCurve(std::vector<Point>& points, double step_size)
+{
+  /*
+
+  */
+  std::vector<double> pathLengthCumSum; // cummulative summation of path lengths 
+  pathLengthCumSum.resize(points.size());
+  pathLengthCumSum.at(0) = 0.0;
+  
+  for(std::size_t i = 1; i < points.size(); i++)
+  {
+    double si = pathLengthCumSum.at(i-1) + distanceBetweenTwoPoints(points.at(i-1), points.at(i));
+    pathLengthCumSum.at(i) = si;
+  }
+
+  std::vector<Point> newPointsX = points;
+  std::vector<Point> newPointsY = points;
+
+  for(std::size_t i = 0; i < points.size(); i++)
+  {
+    newPointsX.at(i).m_y = newPointsX.at(i).m_x;
+    newPointsX.at(i).m_x = pathLengthCumSum.at(i);
+
+    newPointsY.at(i).m_x = pathLengthCumSum.at(i); 
+  }
+
+  std::cout << newPointsX.size() << std::endl;
+
+  generateInterpolatedPoints(newPointsX, step_size);
+  generateInterpolatedPoints(newPointsY, step_size);
+  
+  points.clear();
+  points.resize(newPointsX.size());
+  for(std::size_t i = 0; i < newPointsX.size(); i++)
+  {
+    points.at(i).m_x = newPointsX.at(i).m_y;
+    points.at(i).m_y = newPointsY.at(i).m_y; 
+  }
+  points.at(newPointsX.size() - 1) = *points.begin();
+
+  return true;
+  
 }
