@@ -9,7 +9,7 @@
  *
  */
 
-#include "point_interpolation/utils/geometry.hpp"
+#include "point_interpolation/utils/utils_geometry.hpp"
 
 Point::Point()
     : m_x(0.0), m_y(0.0), m_Orientation(Quaternion())
@@ -183,4 +183,11 @@ RPY Quaternion::toRPY() const
   rpy.m_yaw = std::atan2(siny_cosp, cosy_cosp);
 
   return rpy;
+}
+
+double distanceBetweenTwoPoints(const Point& p1, const Point& p2)
+{
+  return std::sqrt(
+    std::pow(p2.m_x - p1.m_x, 2) + std::pow(p2.m_y - p1.m_y, 2)
+  );
 }

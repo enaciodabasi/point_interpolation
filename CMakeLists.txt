@@ -6,10 +6,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
 endif()
 
 find_package(Eigen3 REQUIRED)
+find_package(Matplot++ REQUIRED)
 
 set(SOURCES
   src/utils_geometry.cpp
   src/cubic_spline_interpolation.cpp
+  src/linear_interpolation.cpp
 )
 
 add_library(
@@ -71,7 +73,8 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake ${CM
 function(add_example EXAMPLE_NAME)
   add_executable(${EXAMPLE_NAME} examples/${EXAMPLE_NAME}.cpp)
   target_include_directories(${EXAMPLE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-  target_link_libraries(${EXAMPLE_NAME} ${CMAKE_PROJECT_NAME})
+  target_link_libraries(${EXAMPLE_NAME} ${CMAKE_PROJECT_NAME} Matplot++::matplot)
 endfunction()
 
 add_example(natural_cubic_spline_example)
+add_example(linear_interpolation_example)
