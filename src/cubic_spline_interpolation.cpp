@@ -180,7 +180,7 @@ bool generateInterpolatedPoints(std::vector<Point>& points, double step_size)
   const double epsilon = 1e-9;
   for(std::vector<Point>::const_iterator pointIter = points.begin(); (pointIter != (points.end() - 1)); pointIter++)
   {
-
+    
     Point previousPoint = *pointIter;
     newPoints.push_back(previousPoint);
     std::size_t currentInterval = (std::size_t)(pointIter - points.begin());

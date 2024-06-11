@@ -22,6 +22,7 @@ int main(int argc, char** argv)
     0.0,
     2.0,
     0.0,
+    5.0,
     -2.0
   };
 
@@ -30,6 +31,7 @@ int main(int argc, char** argv)
     2.0,
     0.0,
     -2.0,
+    3.5,
     0.0
   };
 
