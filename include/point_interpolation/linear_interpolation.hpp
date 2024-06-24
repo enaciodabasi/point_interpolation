@@ -12,7 +12,8 @@
 #ifndef LINEAR_INTERPOLATION_HPP_
 #define LINEAR_INTERPOLATION_HPP_
 
-#include <point_interpolation/utils/utils_geometry.hpp>
+#include "geometry_utilities/point.hpp"
+#include "geometry_utilities/utils.hpp"
 
 #include <vector>
 #include <optional>

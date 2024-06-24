@@ -15,8 +15,11 @@
 #include <optional>
 #include <vector>
 #include <functional>
+#include <iostream>
+#include <cmath>
 
-#include "point_interpolation/utils/utils_geometry.hpp"
+#include "geometry_utilities/point.hpp"
+#include "geometry_utilities/utils.hpp"
 
 using HermiteInterpolationFunction = std::function<double(std::pair<Point, Point>, double)>;
 
@@ -25,67 +28,43 @@ enum class HermiteSplineType
   
 };
 
-struct HermiteBasisFunctions
+struct NonCopyableAndNonMoveable
 {
-  using HermiteBasisFunction = std::function<double(double)>; 
-  
-  static HermiteBasisFunction h00;
-  static HermiteBasisFunction h10;
-  static HermiteBasisFunction h01;
-  static HermiteBasisFunction h11;
+
+  NonCopyableAndNonMoveable() = default;
+
+  NonCopyableAndNonMoveable(const NonCopyableAndNonMoveable&) = delete;
+  NonCopyableAndNonMoveable(NonCopyableAndNonMoveable&&) = delete;
+
+  NonCopyableAndNonMoveable& operator=(const NonCopyableAndNonMoveable&) = delete;
+  NonCopyableAndNonMoveable& operator=(NonCopyableAndNonMoveable&&) = delete;
 };
 
-struct ExpandedHermiteBasisFunctions : public HermiteBasisFunctions
+using HermiteBasisFunction = std::function<double(double)>;
+
+struct ExpandedHermiteBasisFunctions : private NonCopyableAndNonMoveable
 {
-  ExpandedHermiteBasisFunctions(){
   
-  h00 = [](double t) -> double
-  {
-    return (
-      (2.0 * std::pow(t, 3)) -
-      (3.0 * std::pow(t, 2)) +
-      1.0
-    );
-  };
+  static double h00(double t);
+  static double h10(double t);
+  static double h01(double t);
+  static double h11(double t);
+  
+  ExpandedHermiteBasisFunctions() = default;
 
-  h10 = [](double t) -> double
-  {
-    return (
-      std::pow(t, 3) - 
-      (2.0 * std::pow(t, 2)) + 
-      t
-    );
-  };
-
-  h01 = [](double t) -> double
-  {
-    return (
-      (-2.0 * std::pow(t, 3)) +
-      3.0 * std::pow(t, 2)
-    );
-  };
-
-  h11 = [](double t) -> double
-  {
-    return (
-      std::pow(t, 3) -
-      std::pow(t, 2)
-    );
-  };
-
-  }
 };
 
 /**
  * @brief 
  * 
  * @param points 
- * @param type 
- * @return std::optional<std::vector<HermiteInterpolationFunction>> 
+ * @param step_size 
+ * @return true 
+ * @return false 
  */
-std::optional<std::vector<HermiteInterpolationFunction>> calculateHermiteInterpolationFunctions(
-  const std::vector<Point>& points,
-  HermiteSplineType type
+bool hermiteInterpolation(
+  std::vector<Point>& points,
+  double step_size
 );
 
 #endif // HERMITE_INTERPOLATION_HPP_

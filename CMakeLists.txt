@@ -7,11 +7,12 @@ endif()
 
 find_package(Eigen3 REQUIRED)
 find_package(Matplot++ REQUIRED)
-
+find_package(geometry_utilities REQUIRED)
 set(SOURCES
-  src/utils_geometry.cpp
+  #src/utils_geometry.cpp
   src/cubic_spline_interpolation.cpp
   src/linear_interpolation.cpp
+  src/hermite_interpolation.cpp
 )
 
 add_library(
@@ -28,10 +29,12 @@ target_include_directories(
   PUBLIC
   include/
   ${Eigen_INCLUDE_DIRS}
+  ${geometry_utilities_INCLUDE_DIR}
 )
 target_link_libraries(
   ${CMAKE_PROJECT_NAME}
   ${Eigen_LIBRARIES}
+  ${geometry_utilities_LIBS}
 )
 
 set(GENERAL_INSTALL_DIR /usr/local)
@@ -72,9 +75,10 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_PROJECT_NAME}Config.cmake ${CM
 
 function(add_example EXAMPLE_NAME)
   add_executable(${EXAMPLE_NAME} examples/${EXAMPLE_NAME}.cpp)
-  target_include_directories(${EXAMPLE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/)
-  target_link_libraries(${EXAMPLE_NAME} ${CMAKE_PROJECT_NAME} Matplot++::matplot)
+  target_include_directories(${EXAMPLE_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include/ ${geometry_utilities_INCLUDE_DIR})
+  target_link_libraries(${EXAMPLE_NAME} ${CMAKE_PROJECT_NAME} Matplot++::matplot ${geometry_utilities_LIBS})
 endfunction()
 
 add_example(natural_cubic_spline_example)
 add_example(linear_interpolation_example)
+add_example(hermite_interpolation_example)
